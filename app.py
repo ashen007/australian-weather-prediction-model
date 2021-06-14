@@ -19,7 +19,11 @@ app.layout = html.Div(id='main',
                                                               'font-family': 'sans-serif',
                                                               'font-weight': '600'})
                                           ])
-                                      ])
+                                      ], style={'background-color': '#fff',
+                                                'box-shadow': '0px -8px 20px 0px'
+                                                }),
+                          html.Section(id='time-series',
+                                       children=[])
                       ])
 
 app.run_server(debug=False)
