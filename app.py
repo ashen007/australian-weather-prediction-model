@@ -4,9 +4,8 @@ import plotly.graph_objs as go
 import dash_core_components as dcc
 import dash_html_components as html
 
-
 app = dash.Dash(__name__,
-                assets_folder='')
+                assets_folder='assets/')
 
 app.layout = html.Div(id='main',
                       children=[
