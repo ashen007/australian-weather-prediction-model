@@ -1,9 +1,12 @@
-import plotly.graph_objs as go
 import dash
+import pandas as pd
+import plotly.graph_objs as go
 import dash_core_components as dcc
 import dash_html_components as html
 
-app = dash.Dash()
+
+app = dash.Dash(__name__,
+                assets_folder='')
 
 app.layout = html.Div(id='main',
                       children=[
