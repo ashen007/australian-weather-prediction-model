@@ -1,7 +1,9 @@
 import dash
+import math
 import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
+import plotly.express as px
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
@@ -39,6 +41,15 @@ data['Season'] = data['Date'].dt.month.apply(seasons)
 
 years = data['Year'].unique()
 season = ['spring', 'summer', 'autumn', 'winter']
+colors = {'spring': '#193441',
+          'summer': '#074666',
+          'autumn': '#0C7BB3',
+          'winter': '#56B9EA'}
+angle = math.pi / 4
+camera = dict(
+    # up=dict(x=0, y=math.cos(angle), z=math.sin(angle)),
+    eye=dict(x=1.6, y=1.6, z=0.5)
+)
 
 
 # graphs and call-backs
@@ -82,8 +93,8 @@ def update_pressure9am(location, year):
                                                z=temp[temp['Season'] == s]['Rainfall'],
                                                mode='markers',
                                                opacity=0.9,
-
                                                marker=dict(size=10,
+                                                           color=colors[s],
                                                            line=dict(width=0.5,
                                                                      color='#fff')),
                                                name=s)
@@ -106,9 +117,11 @@ def update_pressure9am(location, year):
                                              zaxis=dict(title='Rainfall (mm)',
                                                         backgroundcolor="#fff",
                                                         gridcolor="#F5F5F5",
+                                                        zeroline=False
                                                         )),
-                                  height=650,
-                                  margin=dict(b=0, l=0, r=0),
+                                  scene_camera=camera,
+                                  height=500,
+                                  margin=dict(b=5, l=0, r=0),
                                   legend=dict(orientation='h'),
                                   plot_bgcolor='#fff'
                                   )
@@ -129,6 +142,7 @@ def update_pressure3pm(location, year):
                                                mode='markers',
                                                opacity=0.9,
                                                marker=dict(size=10,
+                                                           color=colors[s],
                                                            line=dict(width=0.5,
                                                                      color='#fff')),
                                                name=s)
@@ -151,12 +165,45 @@ def update_pressure3pm(location, year):
                                              zaxis=dict(title='Rainfall (mm)',
                                                         backgroundcolor="#fff",
                                                         gridcolor="#F5F5F5",
+                                                        zeroline=False
                                                         )),
-                                  height=650,
-                                  margin=dict(b=0, l=0, r=0),
+                                  scene_camera=camera,
+                                  height=500,
+                                  margin=dict(b=5, l=0, r=0),
                                   legend=dict(orientation='h'),
                                   )
     return pres3pm_vs_rain
+
+
+@app.callback(Output('wind-rose', 'figure'),
+              Input('location', 'value'),
+              Input('year', 'value'))
+def update_windGraph(location, year):
+    temp = data[(data['Location'] == location) & (data['Year'] == year)]
+
+    wind_rose = px.bar_polar(temp,
+                             theta='WindGustDir',
+                             color='WindGustSpeed',
+                             color_continuous_scale=px.colors.sequential.ice)
+
+    wind_rose.update_layout(title=dict(text='Wind speed and direction',
+                                       xanchor='center',
+                                       yanchor='top',
+                                       x=0.5,
+                                       y=0.9,
+                                       font=dict(size=18)),
+                            height=500,
+                            margin=dict(t=100, b=30),
+                            polar=dict(radialaxis=dict(visible=True,
+                                                       gridcolor='#F5F5F5',
+                                                       ),
+                                       bgcolor='#fff',
+                                       )
+                            )
+
+    wind_rose.update(layout_coloraxis_showscale=False)
+
+    return wind_rose
 
 
 # web page structure
@@ -242,7 +289,13 @@ app.layout = html.Div(id='main',
                                               'margin': '0 auto',
                                               'padding': '35px 25px',
                                               'display': 'flex'}),
-                              dcc.Graph(id='time-series')
+                              dcc.Graph(id='time-series',
+                                        style={'box-sizing': 'border-box',
+                                               'margin': '25px',
+                                               'box-shadow': '0px 1px 3px rgb(0 0 0 / 12%),'
+                                                             '0px 1px 2px rgb(0 0 0 / 24%)'
+                                               }
+                                        )
                           ],
                               style={'margin-top': '50px',
                                      'margin-bottom': '25px'}),
@@ -252,17 +305,32 @@ app.layout = html.Div(id='main',
                                                [
                                                    html.Div(
                                                        dcc.Graph(id='pressure9am'),
-                                                       # style={'width': '48%'}
+                                                       style={'width': '31.5%',
+                                                              'margin': '0 12px',
+                                                              'box-shadow': '0px 1px 3px rgb(0 0 0 / 12%),'
+                                                                            '0px 1px 2px rgb(0 0 0 / 24%)'
+                                                              }
+                                                   ),
+                                                   html.Div(
+                                                       dcc.Graph(id='wind-rose'),
+                                                       style={'width': '31.5%',
+                                                              'margin': '0 12px',
+                                                              'box-shadow': '0px 1px 3px rgb(0 0 0 / 12%),'
+                                                                            '0px 1px 2px rgb(0 0 0 / 24%)'
+                                                              }
                                                    ),
                                                    html.Div(
                                                        dcc.Graph(id='pressure3pm'),
-                                                       # style={'width': '48%'}
+                                                       style={'width': '31.5%',
+                                                              'margin': '0 12px',
+                                                              'box-shadow': '0px 1px 3px rgb(0 0 0 / 12%),'
+                                                                            '0px 1px 2px rgb(0 0 0 / 24%)'
+                                                              }
                                                    )],
-                                               style={'width': '95%',
-                                                      'margin': '0 auto',
+                                               style={'margin': '0 auto',
                                                       'display': 'flex',
                                                       'flex-direction': 'row',
-                                                      'justify-content': 'space-around'}
+                                                      'justify-content': 'center'}
                                            )
                                        ],
                                        style={'margin': '25px 0'})

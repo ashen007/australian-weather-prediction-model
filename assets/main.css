@@ -2,6 +2,7 @@ body {
     margin: 0;
     padding: 0;
     border: none;
+    background-color: #F2F2F2;
 }
 
 .rc-slider-track {
