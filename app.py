@@ -1,4 +1,5 @@
 import dash
+import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
 import dash_core_components as dcc
@@ -14,33 +15,148 @@ app = dash.Dash(__name__,
                 external_stylesheets=['https://codepen.io/chriddyp/pen/bWLwgP.css'],
                 assets_folder='assets/')
 
+
 # aggregations and manipulation
+def seasons(month):
+    """
+    decide the season that date belongs to
+    :param month:
+    :return:
+    """
+    if 3 <= month <= 5:
+        return 'spring'
+    if 6 <= month <= 8:
+        return 'summer'
+    if 9 <= month <= 11:
+        return 'autumn'
+
+    return 'winter'
+
+
 data['Year'] = data['Date'].dt.year
 data['Month'] = data['Date'].dt.month
-
-
+data['Season'] = data['Date'].dt.month.apply(seasons)
 
 years = data['Year'].unique()
+season = ['spring', 'summer', 'autumn', 'winter']
 
 
 # graphs and call-backs
 @app.callback(Output('time-series', 'figure'),
               Input('location', 'value'),
               Input('year', 'value'))
-def update_graph(location, year):
+def update_timeseries(location, year):
     temp = data[(data['Location'] == location) & (data['Year'] == year)]
 
     figure = go.Figure(go.Scatter(x=temp['Date'],
                                   y=temp['Rainfall'],
                                   mode='lines',
                                   marker=dict(color='#053BA6')))
-    figure.update_layout(xaxis=dict(title='Date',
+    figure.update_layout(title=dict(text='How much rainfall does get',
+                                    xanchor='center',
+                                    yanchor='top',
+                                    x=0.5,
+                                    y=0.9,
+                                    font=dict(size=18)
+                                    ),
+                         xaxis=dict(title='Date',
                                     gridcolor='#F5F5F5'),
                          yaxis=dict(title='Rainfall (mm)',
                                     gridcolor='#F5F5F5'),
                          plot_bgcolor='#fff',
                          height=600)
+    figure.update_xaxes(rangeslider_visible=True)
     return figure
+
+
+@app.callback(Output('pressure9am', 'figure'),
+              Input('location', 'value'),
+              Input('year', 'value'))
+def update_pressure9am(location, year):
+    pres9am_vs_rain = go.Figure()
+    temp = data[(data['Location'] == location) & (data['Year'] == year)]
+
+    for s in temp['Season'].unique():
+        pres9am_vs_rain.add_trace(go.Scatter3d(x=temp[temp['Season'] == s]['Humidity9am'],
+                                               y=temp[temp['Season'] == s]['Pressure9am'],
+                                               z=temp[temp['Season'] == s]['Rainfall'],
+                                               mode='markers',
+                                               opacity=0.9,
+
+                                               marker=dict(size=10,
+                                                           line=dict(width=0.5,
+                                                                     color='#fff')),
+                                               name=s)
+                                  )
+
+    pres9am_vs_rain.update_layout(title=dict(text='Pressure and Humidity at morning',
+                                             xanchor='center',
+                                             yanchor='top',
+                                             x=0.5,
+                                             y=0.9,
+                                             font=dict(size=18)),
+                                  scene=dict(xaxis=dict(title='Humidity at 9am',
+                                                        backgroundcolor="#fff",
+                                                        gridcolor="#F5F5F5",
+                                                        ),
+                                             yaxis=dict(title='Pressure at 9am',
+                                                        backgroundcolor="#fff",
+                                                        gridcolor="#F5F5F5",
+                                                        ),
+                                             zaxis=dict(title='Rainfall (mm)',
+                                                        backgroundcolor="#fff",
+                                                        gridcolor="#F5F5F5",
+                                                        )),
+                                  height=650,
+                                  margin=dict(b=0, l=0, r=0),
+                                  legend=dict(orientation='h'),
+                                  plot_bgcolor='#fff'
+                                  )
+    return pres9am_vs_rain
+
+
+@app.callback(Output('pressure3pm', 'figure'),
+              Input('location', 'value'),
+              Input('year', 'value'))
+def update_pressure3pm(location, year):
+    pres3pm_vs_rain = go.Figure()
+    temp = data[(data['Location'] == location) & (data['Year'] == year)]
+
+    for s in temp['Season'].unique():
+        pres3pm_vs_rain.add_trace(go.Scatter3d(x=temp[temp['Season'] == s]['Humidity3pm'],
+                                               y=temp[temp['Season'] == s]['Pressure3pm'],
+                                               z=temp[temp['Season'] == s]['Rainfall'],
+                                               mode='markers',
+                                               opacity=0.9,
+                                               marker=dict(size=10,
+                                                           line=dict(width=0.5,
+                                                                     color='#fff')),
+                                               name=s)
+                                  )
+
+    pres3pm_vs_rain.update_layout(title=dict(text='Pressure and Humidity at evening',
+                                             xanchor='center',
+                                             yanchor='top',
+                                             x=0.5,
+                                             y=0.9,
+                                             font=dict(size=18)),
+                                  scene=dict(xaxis=dict(title='Humidity at 3pm',
+                                                        backgroundcolor="#fff",
+                                                        gridcolor="#F5F5F5",
+                                                        ),
+                                             yaxis=dict(title='Pressure at 3pm',
+                                                        backgroundcolor="#fff",
+                                                        gridcolor="#F5F5F5",
+                                                        ),
+                                             zaxis=dict(title='Rainfall (mm)',
+                                                        backgroundcolor="#fff",
+                                                        gridcolor="#F5F5F5",
+                                                        )),
+                                  height=650,
+                                  margin=dict(b=0, l=0, r=0),
+                                  legend=dict(orientation='h'),
+                                  )
+    return pres3pm_vs_rain
 
 
 # web page structure
@@ -115,14 +231,41 @@ app.layout = html.Div(id='main',
                                                               {'label': 'Uluru', 'value': 'Uluru'}],
                                                      value='Albury',
                                                      style={'width': '48%'}),
-                                        dcc.Dropdown(id='year',
-                                                     options=[{'label': str(i), 'value': i} for i in years],
-                                                     value=years.max(),
-                                                     style={'width': '48%'})],
-                                       style={'width': '90%', 'margin': '0 auto', 'display': 'flex'}),
+                                        html.Div(dcc.Slider(id='year',
+                                                            min=np.min(years),
+                                                            max=np.max(years),
+                                                            marks={str(i): str(i) for i in years},
+                                                            value=years.max()),
+                                                 style={'width': '80%',
+                                                        'margin': '0 auto'})],
+                                       style={'width': '90%',
+                                              'margin': '0 auto',
+                                              'padding': '35px 25px',
+                                              'display': 'flex'}),
                               dcc.Graph(id='time-series')
                           ],
-                              style={'margin-top': '50px'})
+                              style={'margin-top': '50px',
+                                     'margin-bottom': '25px'}),
+                          html.Section(id='compare',
+                                       children=[
+                                           html.Div(
+                                               [
+                                                   html.Div(
+                                                       dcc.Graph(id='pressure9am'),
+                                                       # style={'width': '48%'}
+                                                   ),
+                                                   html.Div(
+                                                       dcc.Graph(id='pressure3pm'),
+                                                       # style={'width': '48%'}
+                                                   )],
+                                               style={'width': '95%',
+                                                      'margin': '0 auto',
+                                                      'display': 'flex',
+                                                      'flex-direction': 'row',
+                                                      'justify-content': 'space-around'}
+                                           )
+                                       ],
+                                       style={'margin': '25px 0'})
                       ],
                       )
 

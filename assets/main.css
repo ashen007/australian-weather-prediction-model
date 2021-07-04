@@ -3,3 +3,15 @@ body {
     padding: 0;
     border: none;
 }
+
+.rc-slider-track {
+    background-color: #053BA6 !important;
+}
+
+.rc-slider-handle {
+    border: solid 2px #053BA6 !important;
+}
+
+.rc-slider-dot-active {
+    border-color: #053BA6;
+}
