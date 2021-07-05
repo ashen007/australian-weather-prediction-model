@@ -353,5 +353,3 @@ app.layout = html.Div(id='main',
                                        style={'margin': '25px 0'})
                       ],
                       )
-
-app.run_server(debug=False)
