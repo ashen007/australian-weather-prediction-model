@@ -88,10 +88,20 @@ def update_pressure9am(location, year):
     temp = data[(data['Location'] == location) & (data['Year'] == year)]
 
     for s in temp['Season'].unique():
+        hover_text = []
+
+        for index, row in temp[temp['Season'] == s][['Humidity9am', 'Pressure9am', 'Rainfall']].iterrows():
+            hover_text.append(('humidity: {h}<br>' +
+                               'pressure: {p}<br>' +
+                               'rainfall: {r}').format(h=row['Humidity9am'],
+                                                       p=row['Pressure9am'],
+                                                       r=row['Rainfall']))
+
         pres9am_vs_rain.add_trace(go.Scatter3d(x=temp[temp['Season'] == s]['Humidity9am'],
                                                y=temp[temp['Season'] == s]['Pressure9am'],
                                                z=temp[temp['Season'] == s]['Rainfall'],
                                                mode='markers',
+                                               hovertext=hover_text,
                                                opacity=0.9,
                                                marker=dict(size=10,
                                                            color=colors[s],
@@ -136,10 +146,20 @@ def update_pressure3pm(location, year):
     temp = data[(data['Location'] == location) & (data['Year'] == year)]
 
     for s in temp['Season'].unique():
+        hover_text = []
+
+        for index, row in temp[temp['Season'] == s][['Humidity3pm', 'Pressure3pm', 'Rainfall']].iterrows():
+            hover_text.append(('humidity: {h}<br>' +
+                               'pressure: {p}<br>' +
+                               'rainfall: {r}').format(h=row['Humidity3pm'],
+                                                       p=row['Pressure3pm'],
+                                                       r=row['Rainfall']))
+
         pres3pm_vs_rain.add_trace(go.Scatter3d(x=temp[temp['Season'] == s]['Humidity3pm'],
                                                y=temp[temp['Season'] == s]['Pressure3pm'],
                                                z=temp[temp['Season'] == s]['Rainfall'],
                                                mode='markers',
+                                               hovertext=hover_text,
                                                opacity=0.9,
                                                marker=dict(size=10,
                                                            color=colors[s],
