@@ -1,4 +1,3 @@
-import dash
 import math
 import numpy as np
 import pandas as pd
@@ -6,16 +5,14 @@ import plotly.graph_objs as go
 import plotly.express as px
 import dash_core_components as dcc
 import dash_html_components as html
+
 from dash.dependencies import Input, Output
+from app import app
 
 data = pd.read_pickle('../data/aus_weather_cln_without_encoding.pkl')
 data['Date'] = pd.to_datetime(data['Date'])
 model_input_features = ['Location', 'Rainfall', 'Sunshine', 'WindGustSpeed', 'Humidity9am', 'Humidity3pm',
                         'Pressure9am', 'Pressure3pm', 'Cloud9am', 'Cloud3pm', 'RainToday']
-
-app = dash.Dash(__name__,
-                external_stylesheets=['https://codepen.io/chriddyp/pen/bWLwgP.css'],
-                assets_folder='assets/')
 
 
 # aggregations and manipulation
