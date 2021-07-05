@@ -9,7 +9,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 from app import app
 
-data = pd.read_pickle('../data/aus_weather_cln_without_encoding.pkl')
+data = pd.read_pickle('data/aus_weather_cln_without_encoding.pkl')
 data['Date'] = pd.to_datetime(data['Date'])
 model_input_features = ['Location', 'Rainfall', 'Sunshine', 'WindGustSpeed', 'Humidity9am', 'Humidity3pm',
                         'Pressure9am', 'Pressure3pm', 'Cloud9am', 'Cloud3pm', 'RainToday']
@@ -226,130 +226,117 @@ def update_windGraph(location, year):
 # web page structure
 
 
-app.layout = html.Div(id='main',
-                      children=[
-                          html.Header(id='header-top',
-                                      children=[
-                                          html.Nav([
-                                              html.Div(id='main-title',
-                                                       children='AUSTRALIA TOMORROW WEATHER PREDICTION MODEL',
-                                                       style={'padding': '16px 0 16px 32px',
-                                                              'font-size': '24px',
-                                                              'font-family': 'sans-serif',
-                                                              'font-weight': '600'})
-                                          ])
-                                      ], style={'background-color': '#fff',
-                                                'box-shadow': '0px -8px 20px 0px'
-                                                }),
-                          html.Section([
-                              html.Div([dcc.Dropdown(id='location',
-                                                     options=[{'label': 'Albury', 'value': 'Albury'},
-                                                              {'label': 'BadgerysCreek', 'value': 'BadgerysCreek'},
-                                                              {'label': 'Cobar', 'value': 'Cobar'},
-                                                              {'label': 'CoffsHarbour', 'value': 'CoffsHarbour'},
-                                                              {'label': 'Moree', 'value': 'Moree'},
-                                                              {'label': 'Newcastle', 'value': 'Newcastle'},
-                                                              {'label': 'NorahHead', 'value': 'NorahHead'},
-                                                              {'label': 'NorfolkIsland', 'value': 'NorfolkIsland'},
-                                                              {'label': 'Penrith', 'value': 'Penrith'},
-                                                              {'label': 'Richmond', 'value': 'Richmond'},
-                                                              {'label': 'Sydney', 'value': 'Sydney'},
-                                                              {'label': 'SydneyAirport', 'value': 'SydneyAirport'},
-                                                              {'label': 'WaggaWagga', 'value': 'WaggaWagga'},
-                                                              {'label': 'Williamtown', 'value': 'Williamtown'},
-                                                              {'label': 'Wollongong', 'value': 'Wollongong'},
-                                                              {'label': 'Canberra', 'value': 'Canberra'},
-                                                              {'label': 'Tuggeranong', 'value': 'Tuggeranong'},
-                                                              {'label': 'MountGinini', 'value': 'MountGinini'},
-                                                              {'label': 'Ballarat', 'value': 'Ballarat'},
-                                                              {'label': 'Bendigo', 'value': 'Bendigo'},
-                                                              {'label': 'Sale', 'value': 'Sale'},
-                                                              {'label': 'MelbourneAirport',
-                                                               'value': 'MelbourneAirport'},
-                                                              {'label': 'Melbourne', 'value': 'Melbourne'},
-                                                              {'label': 'Mildura', 'value': 'Mildura'},
-                                                              {'label': 'Nhil', 'value': 'Nhil'},
-                                                              {'label': 'Portland', 'value': 'Portland'},
-                                                              {'label': 'Watsonia', 'value': 'Watsonia'},
-                                                              {'label': 'Dartmoor', 'value': 'Dartmoor'},
-                                                              {'label': 'Brisbane', 'value': 'Brisbane'},
-                                                              {'label': 'Cairns', 'value': 'Cairns'},
-                                                              {'label': 'GoldCoast', 'value': 'GoldCoast'},
-                                                              {'label': 'Townsville', 'value': 'Townsville'},
-                                                              {'label': 'Adelaide', 'value': 'Adelaide'},
-                                                              {'label': 'MountGambier', 'value': 'MountGambier'},
-                                                              {'label': 'Nuriootpa', 'value': 'Nuriootpa'},
-                                                              {'label': 'Woomera', 'value': 'Woomera'},
-                                                              {'label': 'Albany', 'value': 'Albany'},
-                                                              {'label': 'Witchcliffe', 'value': 'Witchcliffe'},
-                                                              {'label': 'PearceRAAF', 'value': 'PearceRAAF'},
-                                                              {'label': 'PerthAirport', 'value': 'PerthAirport'},
-                                                              {'label': 'Perth', 'value': 'Perth'},
-                                                              {'label': 'SalmonGums', 'value': 'SalmonGums'},
-                                                              {'label': 'Walpole', 'value': 'Walpole'},
-                                                              {'label': 'Hobart', 'value': 'Hobart'},
-                                                              {'label': 'Launceston', 'value': 'Launceston'},
-                                                              {'label': 'AliceSprings', 'value': 'AliceSprings'},
-                                                              {'label': 'Darwin', 'value': 'Darwin'},
-                                                              {'label': 'Katherine', 'value': 'Katherine'},
-                                                              {'label': 'Uluru', 'value': 'Uluru'}],
-                                                     value='Albury',
-                                                     style={'width': '48%'}),
-                                        html.Div(dcc.Slider(id='year',
-                                                            min=np.min(years),
-                                                            max=np.max(years),
-                                                            marks={str(i): str(i) for i in years},
-                                                            value=years.max()),
-                                                 style={'width': '80%',
-                                                        'margin': '0 auto'})],
-                                       style={'width': '90%',
-                                              'margin': '0 auto',
-                                              'padding': '35px 25px',
-                                              'display': 'flex'}),
-                              dcc.Graph(id='time-series',
-                                        style={'box-sizing': 'border-box',
-                                               'margin': '25px',
-                                               'box-shadow': '0px 1px 3px rgb(0 0 0 / 12%),'
-                                                             '0px 1px 2px rgb(0 0 0 / 24%)'
-                                               }
-                                        )
-                          ],
-                              style={'margin-top': '50px',
-                                     'margin-bottom': '25px'}),
-                          html.Section(id='compare',
-                                       children=[
-                                           html.Div(
-                                               [
-                                                   html.Div(
-                                                       dcc.Graph(id='pressure9am'),
-                                                       style={'width': '31.5%',
-                                                              'margin': '0 12px',
-                                                              'box-shadow': '0px 1px 3px rgb(0 0 0 / 12%),'
-                                                                            '0px 1px 2px rgb(0 0 0 / 24%)'
-                                                              }
-                                                   ),
-                                                   html.Div(
-                                                       dcc.Graph(id='wind-rose'),
-                                                       style={'width': '31.5%',
-                                                              'margin': '0 12px',
-                                                              'box-shadow': '0px 1px 3px rgb(0 0 0 / 12%),'
-                                                                            '0px 1px 2px rgb(0 0 0 / 24%)'
-                                                              }
-                                                   ),
-                                                   html.Div(
-                                                       dcc.Graph(id='pressure3pm'),
-                                                       style={'width': '31.5%',
-                                                              'margin': '0 12px',
-                                                              'box-shadow': '0px 1px 3px rgb(0 0 0 / 12%),'
-                                                                            '0px 1px 2px rgb(0 0 0 / 24%)'
-                                                              }
-                                                   )],
-                                               style={'margin': '0 auto',
-                                                      'display': 'flex',
-                                                      'flex-direction': 'row',
-                                                      'justify-content': 'center'}
-                                           )
-                                       ],
-                                       style={'margin': '25px 0'})
+layout = html.Div(id='main',
+                  children=[
+                      html.Section([
+                          html.Div([dcc.Dropdown(id='location',
+                                                 options=[{'label': 'Albury', 'value': 'Albury'},
+                                                          {'label': 'BadgerysCreek', 'value': 'BadgerysCreek'},
+                                                          {'label': 'Cobar', 'value': 'Cobar'},
+                                                          {'label': 'CoffsHarbour', 'value': 'CoffsHarbour'},
+                                                          {'label': 'Moree', 'value': 'Moree'},
+                                                          {'label': 'Newcastle', 'value': 'Newcastle'},
+                                                          {'label': 'NorahHead', 'value': 'NorahHead'},
+                                                          {'label': 'NorfolkIsland', 'value': 'NorfolkIsland'},
+                                                          {'label': 'Penrith', 'value': 'Penrith'},
+                                                          {'label': 'Richmond', 'value': 'Richmond'},
+                                                          {'label': 'Sydney', 'value': 'Sydney'},
+                                                          {'label': 'SydneyAirport', 'value': 'SydneyAirport'},
+                                                          {'label': 'WaggaWagga', 'value': 'WaggaWagga'},
+                                                          {'label': 'Williamtown', 'value': 'Williamtown'},
+                                                          {'label': 'Wollongong', 'value': 'Wollongong'},
+                                                          {'label': 'Canberra', 'value': 'Canberra'},
+                                                          {'label': 'Tuggeranong', 'value': 'Tuggeranong'},
+                                                          {'label': 'MountGinini', 'value': 'MountGinini'},
+                                                          {'label': 'Ballarat', 'value': 'Ballarat'},
+                                                          {'label': 'Bendigo', 'value': 'Bendigo'},
+                                                          {'label': 'Sale', 'value': 'Sale'},
+                                                          {'label': 'MelbourneAirport',
+                                                           'value': 'MelbourneAirport'},
+                                                          {'label': 'Melbourne', 'value': 'Melbourne'},
+                                                          {'label': 'Mildura', 'value': 'Mildura'},
+                                                          {'label': 'Nhil', 'value': 'Nhil'},
+                                                          {'label': 'Portland', 'value': 'Portland'},
+                                                          {'label': 'Watsonia', 'value': 'Watsonia'},
+                                                          {'label': 'Dartmoor', 'value': 'Dartmoor'},
+                                                          {'label': 'Brisbane', 'value': 'Brisbane'},
+                                                          {'label': 'Cairns', 'value': 'Cairns'},
+                                                          {'label': 'GoldCoast', 'value': 'GoldCoast'},
+                                                          {'label': 'Townsville', 'value': 'Townsville'},
+                                                          {'label': 'Adelaide', 'value': 'Adelaide'},
+                                                          {'label': 'MountGambier', 'value': 'MountGambier'},
+                                                          {'label': 'Nuriootpa', 'value': 'Nuriootpa'},
+                                                          {'label': 'Woomera', 'value': 'Woomera'},
+                                                          {'label': 'Albany', 'value': 'Albany'},
+                                                          {'label': 'Witchcliffe', 'value': 'Witchcliffe'},
+                                                          {'label': 'PearceRAAF', 'value': 'PearceRAAF'},
+                                                          {'label': 'PerthAirport', 'value': 'PerthAirport'},
+                                                          {'label': 'Perth', 'value': 'Perth'},
+                                                          {'label': 'SalmonGums', 'value': 'SalmonGums'},
+                                                          {'label': 'Walpole', 'value': 'Walpole'},
+                                                          {'label': 'Hobart', 'value': 'Hobart'},
+                                                          {'label': 'Launceston', 'value': 'Launceston'},
+                                                          {'label': 'AliceSprings', 'value': 'AliceSprings'},
+                                                          {'label': 'Darwin', 'value': 'Darwin'},
+                                                          {'label': 'Katherine', 'value': 'Katherine'},
+                                                          {'label': 'Uluru', 'value': 'Uluru'}],
+                                                 value='Albury',
+                                                 style={'width': '48%'}),
+                                    html.Div(dcc.Slider(id='year',
+                                                        min=np.min(years),
+                                                        max=np.max(years),
+                                                        marks={str(i): str(i) for i in years},
+                                                        value=years.max()),
+                                             style={'width': '80%',
+                                                    'margin': '0 auto'})],
+                                   style={'width': '90%',
+                                          'margin': '0 auto',
+                                          'padding': '35px 25px',
+                                          'display': 'flex'}),
+                          dcc.Graph(id='time-series',
+                                    style={'box-sizing': 'border-box',
+                                           'margin': '25px',
+                                           'box-shadow': '0px 1px 3px rgb(0 0 0 / 12%),'
+                                                         '0px 1px 2px rgb(0 0 0 / 24%)'
+                                           }
+                                    )
                       ],
-                      )
+                          style={'margin-top': '50px',
+                                 'margin-bottom': '25px'}),
+                      html.Section(id='compare',
+                                   children=[
+                                       html.Div(
+                                           [
+                                               html.Div(
+                                                   dcc.Graph(id='pressure9am'),
+                                                   style={'width': '31.5%',
+                                                          'margin': '0 12px',
+                                                          'box-shadow': '0px 1px 3px rgb(0 0 0 / 12%),'
+                                                                        '0px 1px 2px rgb(0 0 0 / 24%)'
+                                                          }
+                                               ),
+                                               html.Div(
+                                                   dcc.Graph(id='wind-rose'),
+                                                   style={'width': '31.5%',
+                                                          'margin': '0 12px',
+                                                          'box-shadow': '0px 1px 3px rgb(0 0 0 / 12%),'
+                                                                        '0px 1px 2px rgb(0 0 0 / 24%)'
+                                                          }
+                                               ),
+                                               html.Div(
+                                                   dcc.Graph(id='pressure3pm'),
+                                                   style={'width': '31.5%',
+                                                          'margin': '0 12px',
+                                                          'box-shadow': '0px 1px 3px rgb(0 0 0 / 12%),'
+                                                                        '0px 1px 2px rgb(0 0 0 / 24%)'
+                                                          }
+                                               )],
+                                           style={'margin': '0 auto',
+                                                  'display': 'flex',
+                                                  'flex-direction': 'row',
+                                                  'justify-content': 'center'}
+                                       )
+                                   ],
+                                   style={'margin': '25px 0'})
+                  ],
+                  )
