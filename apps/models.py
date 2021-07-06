@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
 import plotly.express as px
@@ -63,6 +64,8 @@ def update_sample_space(sample_size):
 
 @app.callback(Output('roc', 'figure'),
               Output('pred-prob', 'figure'),
+              Output('fpr-tpr', 'figure'),
+              Output('conf-matrix', 'figure'),
               Input('model', 'value'))
 def update_model(model):
     roc_figure = go.Figure()
@@ -78,10 +81,57 @@ def update_model(model):
         with open('models/rain_tree_model.pkl', 'rb') as file:
             model = pd.read_pickle(file)
 
-    y_score = model.predict_proba(test_x)
-    fpr, tpr, thresholds = roc_curve(y, y_score)
+    y_score = model.predict_proba(test_x)[:, 1]
+    predictions = model.predict(test_x)
+    fpr, tpr, thresholds = roc_curve(test_y, y_score)
 
-    return roc_figure, hist_figure
+    comp_df = pd.DataFrame(np.array(test_y), columns=['true label'])
+    comp_df['predicted_label'] = list(predictions)
+
+    # roc and auc
+
+    roc_figure = px.area(
+        x=fpr, y=tpr,
+        title=f'ROC Curve (AUC={auc(fpr, tpr):.4f})',
+        labels=dict(x='False Positive Rate', y='True Positive Rate'),
+        height=700
+    )
+    roc_figure.add_shape(
+        type='line', line=dict(dash='dash'),
+        x0=0, x1=1, y0=0, y1=1
+    )
+
+    roc_figure.update_yaxes(scaleanchor="x", scaleratio=1)
+    roc_figure.update_xaxes(constrain='domain')
+
+    # compare true labels and model predictions
+
+    hist_figure = px.histogram(
+        x=y_score,
+        color=test_y,
+        nbins=50,
+        labels=dict(color='True Labels', x='Score')
+    )
+
+    # compare fpr and tpr for every threshold
+    df = pd.DataFrame({
+        'False Positive Rate': fpr,
+        'True Positive Rate': tpr
+    }, index=thresholds)
+    df.index.name = "Thresholds"
+    df.columns.name = "Rate"
+
+    fig_thresh = px.line(
+        df, title='TPR and FPR at every threshold',
+        height=700
+    )
+
+    confusion_matrix = go.Figure()
+
+    fig_thresh.update_yaxes(scaleanchor="x", scaleratio=1)
+    fig_thresh.update_xaxes(range=[0, 1], constrain='domain')
+
+    return roc_figure, hist_figure, fig_thresh, confusion_matrix
 
 
 layout = html.Div([
@@ -105,8 +155,10 @@ layout = html.Div([
     ),
     html.Section([
         html.Div([
+            dcc.Graph(id='pred-prob'),
+            dcc.Graph(id='conf-matrix'),
             dcc.Graph(id='roc'),
-            dcc.Graph(id='pred-prob')
+            dcc.Graph(id='fpr-tpr')
         ]),
         html.Div([
             dcc.Dropdown(id='model',
