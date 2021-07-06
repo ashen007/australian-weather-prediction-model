@@ -66,6 +66,7 @@ def update_sample_space(sample_size):
               Output('pred-prob', 'figure'),
               Output('fpr-tpr', 'figure'),
               Output('conf-matrix', 'figure'),
+              Output('hist-fig', 'figure'),
               Input('model', 'value'))
 def update_model(model):
     roc_figure = go.Figure()
@@ -87,6 +88,12 @@ def update_model(model):
 
     comp_df = pd.DataFrame(np.array(test_y), columns=['true label'])
     comp_df['predicted_label'] = list(predictions)
+    true_labels = comp_df[comp_df['true label'] == 1]
+    false_labels = comp_df[comp_df['true label'] == 0]
+    tp = np.sum(true_labels['true label'] == true_labels['predicted_label'])
+    tn = true_labels.shape[0] - tp
+    fp = np.sum(false_labels['true label'] == false_labels['predicted_label'])
+    fn = false_labels.shape[0] - fp
 
     # roc and auc
 
@@ -104,14 +111,32 @@ def update_model(model):
     roc_figure.update_yaxes(scaleanchor="x", scaleratio=1)
     roc_figure.update_xaxes(constrain='domain')
 
+    # confusion matrix
+    confusion_matrix = px.pie(values=[tp, tn, fp, fn],
+                              names=['True positive', 'True negative', 'False positive', 'False negative'],
+                              color_discrete_sequence=px.colors.sequential.ice)
+
     # compare true labels and model predictions
 
-    hist_figure = px.histogram(
+    hist_figure = go.Figure()
+    hist_figure.add_trace(go.Histogram(x=test_y,
+                                       marker=dict(color='#193441'),
+                                       ))
+    hist_figure.add_trace(go.Histogram(x=predictions,
+                                       marker=dict(color='#56B9EA'),
+                                       ))
+
+    fig_hist = px.histogram(
         x=y_score,
         color=test_y,
+        color_discrete_sequence=px.colors.sequential.Blues_r,
         nbins=50,
         labels=dict(color='True Labels', x='Score')
     )
+
+    # The two histograms are drawn on top of another
+    hist_figure.update_layout(barmode='stack',
+                              bargap=0.1)
 
     # compare fpr and tpr for every threshold
     df = pd.DataFrame({
@@ -126,12 +151,10 @@ def update_model(model):
         height=700
     )
 
-    confusion_matrix = go.Figure()
-
     fig_thresh.update_yaxes(scaleanchor="x", scaleratio=1)
     fig_thresh.update_xaxes(range=[0, 1], constrain='domain')
 
-    return roc_figure, hist_figure, fig_thresh, confusion_matrix
+    return roc_figure, hist_figure, fig_thresh, confusion_matrix, fig_hist
 
 
 layout = html.Div([
@@ -156,6 +179,7 @@ layout = html.Div([
     html.Section([
         html.Div([
             dcc.Graph(id='pred-prob'),
+            dcc.Graph(id='hist-fig'),
             dcc.Graph(id='conf-matrix'),
             dcc.Graph(id='roc'),
             dcc.Graph(id='fpr-tpr')
