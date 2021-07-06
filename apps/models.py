@@ -112,8 +112,10 @@ def update_model(model):
     roc_figure.update_layout(title=f'ROC Curve, AUC={auc(fpr, tpr):.4f}',
                              height=700,
                              plot_bgcolor='#fff',
-                             xaxis=dict(gridcolor='#F5F5F5'),
-                             yaxis=dict(zeroline=False,
+                             xaxis=dict(title='False Positive Rate',
+                                        gridcolor='#F5F5F5'),
+                             yaxis=dict(title='True Positive Rate',
+                                        zeroline=False,
                                         gridcolor='#F5F5F5')
                              )
 
@@ -121,6 +123,14 @@ def update_model(model):
     confusion_matrix = px.pie(values=[tp, tn, fp, fn],
                               names=['True positive', 'True negative', 'False positive', 'False negative'],
                               color_discrete_sequence=px.colors.sequential.ice)
+
+    confusion_matrix.update_layout(title=dict(text='Confusion matrix',
+                                              xanchor='center',
+                                              yanchor='top',
+                                              x=0.5,
+                                              y=0.95,
+                                              font=dict(size=18)
+                                              ))
 
     # compare true labels and model predictions
 
@@ -133,7 +143,14 @@ def update_model(model):
                                        marker=dict(color='#56B9EA'),
                                        name='Predicted label',
                                        ))
-    hist_figure.update_layout(xaxis=dict(title='Class',
+    hist_figure.update_layout(title=dict(text='True labels and predicted label counts',
+                                         xanchor='center',
+                                         yanchor='top',
+                                         x=0.5,
+                                         y=0.95,
+                                         font=dict(size=18)
+                                         ),
+                              xaxis=dict(title='Class',
                                          gridcolor='#F5F5F5'),
                               yaxis=dict(title='Count',
                                          zeroline=False,
@@ -151,7 +168,14 @@ def update_model(model):
         labels=dict(color='True Labels', x='Score')
     )
 
-    fig_hist.update_layout(plot_bgcolor='#fff',
+    fig_hist.update_layout(title=dict(text='Prediction probabilities',
+                                      xanchor='center',
+                                      yanchor='top',
+                                      x=0.5,
+                                      y=0.95,
+                                      font=dict(size=18)
+                                      ),
+                           plot_bgcolor='#fff',
                            xaxis=dict(gridcolor='#F5F5F5'),
                            yaxis=dict(zeroline=False,
                                       gridcolor='#F5F5F5'))
