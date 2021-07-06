@@ -11,7 +11,7 @@ from sklearn.linear_model import LogisticRegression
 from feature_engine.encoding import OrdinalEncoder
 from sklearn.metrics import roc_curve, auc
 from sklearn.model_selection import train_test_split
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 from app import app
 
 # data manipulations
@@ -204,6 +204,42 @@ def update_model(model):
     return roc_figure, hist_figure, fig_thresh, confusion_matrix, fig_hist
 
 
+@app.callback(Output('model-output', 'children'),
+              Input('submit-button', 'n_clicks'),
+              Input('model', 'value'),
+              State('location', 'value'),
+              State('rainfall', 'value'),
+              State('sunshine', 'value'),
+              State('windGustSpeed', 'value'),
+              State('humidity9am', 'value'),
+              State('humidity3pm', 'value'),
+              State('pressure9am', 'value'),
+              State('pressure3pm', 'value'),
+              State('cloud9am', 'value'),
+              State('cloud3pm', 'value'),
+              State('rain-today', 'value'))
+def make_prediction(n_clicks, model, location, rainfall, sunshine, windGustSpeed,
+                    humidity9am, humidity3pm, pressure9am, pressure3pm,
+                    cloud9am, cloud3pm, raintoday):
+    if model == 'knn':
+        with open('models/rain_knn_model.pkl', 'rb') as file:
+            model = pd.read_pickle(file)
+    if model == 'log':
+        with open('models/rain_logistic_model.pkl', 'rb') as file:
+            model = pd.read_pickle(file)
+    if model == 'tree':
+        with open('models/rain_tree_model.pkl', 'rb') as file:
+            model = pd.read_pickle(file)
+
+    inputs = np.asarray([location, rainfall, sunshine, windGustSpeed,
+                         humidity9am, humidity3pm, pressure9am, pressure3pm,
+                         cloud9am, cloud3pm, raintoday]).reshape(1, -1)
+    prob = model.predict_proba(inputs)
+    pred = model.predict(inputs)
+
+    return u"""{} {} {}""".format(prob[0][0], prob[0][1], pred)
+
+
 layout = html.Div([
     html.Section([
         dcc.Graph(id='feature-matrix'),
@@ -261,22 +297,111 @@ layout = html.Div([
                            'margin': '0 0 0 20px'}
                 )
             ],
-                style={'width': '97%',
-                       'margin': '0 auto',
+                style={'margin': '0 25px',
                        'padding': '25px 0',
-                       'background-color': '#fff'}
+                       'background-color': '#fff',
+                       'box-shadow': '0px 1px 3px rgb(0 0 0 / 12%),'
+                                     '0px 1px 2px rgb(0 0 0 / 24%)'
+                       }
             ),
-            html.Div([dcc.Graph(id='roc',
-                                style={'width': '48.5%'}),
-                      dcc.Graph(id='fpr-tpr',
-                                style={'width': '48.5%'})],
-                     style={'display': 'flex',
-                            'justify-content': 'center',
-                            'box-sizing': 'border-box',
-                            'margin': '0 0',
-                            'box-shadow': '0px 1px 3px rgb(0 0 0 / 12%),'
-                                          '0px 1px 2px rgb(0 0 0 / 24%)'
-                            })
+            html.Div(
+                html.Div([dcc.Graph(id='roc',
+                                    style={'width': '50%'}),
+                          dcc.Graph(id='fpr-tpr',
+                                    style={'width': '50%'})],
+                         style={'display': 'flex',
+                                'justify-content': 'center',
+                                'box-sizing': 'border-box',
+                                'margin': '0 25px',
+                                'box-shadow': '0px 1px 3px rgb(0 0 0 / 12%),'
+                                              '0px 1px 2px rgb(0 0 0 / 24%)'
+                                }
+                         )
+            )
         ])
+    ]),
+    html.Section([
+        html.Div([
+            dcc.Dropdown(id='location',
+                         options=[
+                             {'label': 'Albury', 'value': 0},
+                             {'label': 'BadgerysCreek', 'value': 1},
+                             {'label': 'Cobar', 'value': 2},
+                             {'label': 'CoffsHarbour', 'value': 3},
+                             {'label': 'Moree', 'value': 4},
+                             {'label': 'Newcastle', 'value': 5},
+                             {'label': 'NorahHead', 'value': 6},
+                             {'label': 'NorfolkIsland', 'value': 7},
+                             {'label': 'Penrith', 'value': 8},
+                             {'label': 'Richmond', 'value': 9},
+                             {'label': 'Sydney', 'value': 10},
+                             {'label': 'SydneyAirport', 'value': 11},
+                             {'label': 'WaggaWagga', 'value': 12},
+                             {'label': 'Williamtown', 'value': 13},
+                             {'label': 'Wollongong', 'value': 14},
+                             {'label': 'Canberra', 'value': 15},
+                             {'label': 'Tuggeranong', 'value': 16},
+                             {'label': 'MountGinini', 'value': 17},
+                             {'label': 'Ballarat', 'value': 18},
+                             {'label': 'Bendigo', 'value': 19},
+                             {'label': 'Sale', 'value': 20},
+                             {'label': 'MelbourneAirport', 'value': 21},
+                             {'label': 'Melbourne', 'value': 22},
+                             {'label': 'Mildura', 'value': 23},
+                             {'label': 'Nhil', 'value': 24},
+                             {'label': 'Portland', 'value': 25},
+                             {'label': 'Watsonia', 'value': 26},
+                             {'label': 'Dartmoor', 'value': 27},
+                             {'label': 'Brisbane', 'value': 28},
+                             {'label': 'Cairns', 'value': 29},
+                             {'label': 'GoldCoast', 'value': 30},
+                             {'label': 'Townsville', 'value': 31},
+                             {'label': 'Adelaide', 'value': 32},
+                             {'label': 'MountGambier', 'value': 33},
+                             {'label': 'Nuriootpa', 'value': 34},
+                             {'label': 'Woomera', 'value': 35},
+                             {'label': 'Albany', 'value': 36},
+                             {'label': 'Witchcliffe', 'value': 37},
+                             {'label': 'PearceRAAF', 'value': 38},
+                             {'label': 'PerthAirport', 'value': 39},
+                             {'label': 'Perth', 'value': 40},
+                             {'label': 'SalmonGums', 'value': 41},
+                             {'label': 'Walpole', 'value': 42},
+                             {'label': 'Hobart', 'value': 43},
+                             {'label': 'Launceston', 'value': 44},
+                             {'label': 'AliceSprings', 'value': 45},
+                             {'label': 'Darwin', 'value': 46},
+                             {'label': 'Katherine', 'value': 47},
+                             {'label': 'Uluru', 'value': 48}
+                         ],
+                         value=20),
+            dcc.Input(id='rainfall', type='number', step=0.001, value=6.2),
+            dcc.Input(id='sunshine', type='number', step=0.001, value=10.5),
+            dcc.Input(id='windGustSpeed', type='number', step=0.001, value=98.0),
+            html.Div([dcc.Input(id='humidity9am', type='number', step=0.001, value=48.0),
+                      dcc.Input(id='humidity3pm', type='number', step=0.001, value=32.0)]),
+            html.Div([dcc.Input(id='pressure9am', type='number', step=0.001, value=1002.900),
+                      dcc.Input(id='pressure3pm', type='number', step=0.001, value=999.300)]),
+            html.Div([dcc.Input(id='cloud9am', type='number', step=0.001, value=2.0),
+                      dcc.Input(id='cloud3pm', type='number', step=0.001, value=3.0)]),
+            dcc.RadioItems(id='rain-today',
+                           options=[
+                               {'label': 'Yes', 'value': 1},
+                               {'label': 'No', 'value': 0}
+                           ],
+                           value=1),
+            html.Button(id='submit-button',
+                        n_clicks=0,
+                        children='Get prediction'),
+            html.Div([
+                html.Div(id='model-output')
+            ])
+        ],
+            style={'margin': '25px',
+                   'background-color': '#fff',
+                   'box-shadow': '0px 1px 3px rgb(0 0 0 / 12%),'
+                                 '0px 1px 2px rgb(0 0 0 / 24%)'
+                   }
+        )
     ])
 ])
