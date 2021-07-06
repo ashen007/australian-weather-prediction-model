@@ -124,7 +124,8 @@ def update_model(model):
                               names=['True positive', 'True negative', 'False positive', 'False negative'],
                               color_discrete_sequence=px.colors.sequential.ice)
 
-    confusion_matrix.update_layout(title=dict(text='Confusion matrix',
+    confusion_matrix.update_layout(height=600,
+                                   title=dict(text='Confusion matrix',
                                               xanchor='center',
                                               yanchor='top',
                                               x=0.5,
@@ -143,7 +144,8 @@ def update_model(model):
                                        marker=dict(color='#56B9EA'),
                                        name='Predicted label',
                                        ))
-    hist_figure.update_layout(title=dict(text='True labels and predicted label counts',
+    hist_figure.update_layout(height=600,
+                              title=dict(text='True labels and predicted label counts',
                                          xanchor='center',
                                          yanchor='top',
                                          x=0.5,
@@ -168,7 +170,8 @@ def update_model(model):
         labels=dict(color='True Labels', x='Score')
     )
 
-    fig_hist.update_layout(title=dict(text='Prediction probabilities',
+    fig_hist.update_layout(height=600,
+                           title=dict(text='Prediction probabilities',
                                       xanchor='center',
                                       yanchor='top',
                                       x=0.5,
@@ -244,17 +247,36 @@ layout = html.Div([
                             'box-sizing': 'border-box',
                             'margin': '0 5px 25px'
                             }),
-            dcc.Graph(id='roc'),
-            dcc.Graph(id='fpr-tpr')
-        ]),
-        html.Div([
-            dcc.Dropdown(id='model',
-                         options=[
-                             {'label': 'k Nearest Neighbor', 'value': 'knn'},
-                             {'label': 'Logistic Classification', 'value': 'log'},
-                             {'label': 'CART Tree', 'value': 'tree'}
-                         ],
-                         value='log')
+            html.Div([
+                html.Div([
+                    dcc.Dropdown(id='model',
+                                 options=[
+                                     {'label': 'k Nearest Neighbor', 'value': 'knn'},
+                                     {'label': 'Logistic Classification', 'value': 'log'},
+                                     {'label': 'CART Tree', 'value': 'tree'}
+                                 ],
+                                 value='log')
+                ],
+                    style={'width': '30%',
+                           'margin': '0 0 0 20px'}
+                )
+            ],
+                style={'width': '97%',
+                       'margin': '0 auto',
+                       'padding': '25px 0',
+                       'background-color': '#fff'}
+            ),
+            html.Div([dcc.Graph(id='roc',
+                                style={'width': '48.5%'}),
+                      dcc.Graph(id='fpr-tpr',
+                                style={'width': '48.5%'})],
+                     style={'display': 'flex',
+                            'justify-content': 'center',
+                            'box-sizing': 'border-box',
+                            'margin': '0 0',
+                            'box-shadow': '0px 1px 3px rgb(0 0 0 / 12%),'
+                                          '0px 1px 2px rgb(0 0 0 / 24%)'
+                            })
         ])
     ])
 ])
