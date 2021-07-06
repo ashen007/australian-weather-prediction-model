@@ -97,19 +97,25 @@ def update_model(model):
 
     # roc and auc
 
-    roc_figure = px.area(
-        x=fpr, y=tpr,
-        title=f'ROC Curve (AUC={auc(fpr, tpr):.4f})',
-        labels=dict(x='False Positive Rate', y='True Positive Rate'),
-        height=700
-    )
+    roc_figure = go.Figure(go.Scatter(
+        x=fpr,
+        y=tpr,
+        mode='lines',
+        marker=dict(color='#0C7BB3'),
+        fill='tozeroy',
+    ))
     roc_figure.add_shape(
         type='line', line=dict(dash='dash'),
         x0=0, x1=1, y0=0, y1=1
     )
 
-    roc_figure.update_yaxes(scaleanchor="x", scaleratio=1)
-    roc_figure.update_xaxes(constrain='domain')
+    roc_figure.update_layout(title=f'ROC Curve, AUC={auc(fpr, tpr):.4f}',
+                             height=700,
+                             plot_bgcolor='#fff',
+                             xaxis=dict(gridcolor='#F5F5F5'),
+                             yaxis=dict(zeroline=False,
+                                        gridcolor='#F5F5F5')
+                             )
 
     # confusion matrix
     confusion_matrix = px.pie(values=[tp, tn, fp, fn],
@@ -121,10 +127,21 @@ def update_model(model):
     hist_figure = go.Figure()
     hist_figure.add_trace(go.Histogram(x=test_y,
                                        marker=dict(color='#193441'),
+                                       name='True label',
                                        ))
     hist_figure.add_trace(go.Histogram(x=predictions,
                                        marker=dict(color='#56B9EA'),
+                                       name='Predicted label',
                                        ))
+    hist_figure.update_layout(xaxis=dict(title='Class',
+                                         gridcolor='#F5F5F5'),
+                              yaxis=dict(title='Count',
+                                         zeroline=False,
+                                         gridcolor='#F5F5F5'),
+                              plot_bgcolor='#fff',
+                              barmode='stack',
+                              bargap=0.1
+                              )
 
     fig_hist = px.histogram(
         x=y_score,
@@ -134,9 +151,10 @@ def update_model(model):
         labels=dict(color='True Labels', x='Score')
     )
 
-    # The two histograms are drawn on top of another
-    hist_figure.update_layout(barmode='stack',
-                              bargap=0.1)
+    fig_hist.update_layout(plot_bgcolor='#fff',
+                           xaxis=dict(gridcolor='#F5F5F5'),
+                           yaxis=dict(zeroline=False,
+                                      gridcolor='#F5F5F5'))
 
     # compare fpr and tpr for every threshold
     df = pd.DataFrame({
@@ -151,8 +169,10 @@ def update_model(model):
         height=700
     )
 
-    fig_thresh.update_yaxes(scaleanchor="x", scaleratio=1)
-    fig_thresh.update_xaxes(range=[0, 1], constrain='domain')
+    fig_thresh.update_layout(plot_bgcolor='#fff',
+                             xaxis=dict(gridcolor='#F5F5F5'),
+                             yaxis=dict(zeroline=False,
+                                        gridcolor='#F5F5F5'))
 
     return roc_figure, hist_figure, fig_thresh, confusion_matrix, fig_hist
 
@@ -178,9 +198,28 @@ layout = html.Div([
     ),
     html.Section([
         html.Div([
-            dcc.Graph(id='pred-prob'),
-            dcc.Graph(id='hist-fig'),
-            dcc.Graph(id='conf-matrix'),
+            html.Div([dcc.Graph(id='pred-prob',
+                                style={'width': '32%',
+                                       'box-shadow': '0px 1px 3px rgb(0 0 0 / 12%),'
+                                                     '0px 1px 2px rgb(0 0 0 / 24%)'
+                                       }),
+                      dcc.Graph(id='hist-fig',
+                                style={'width': '32%',
+                                       'box-shadow': '0px 1px 3px rgb(0 0 0 / 12%),'
+                                                     '0px 1px 2px rgb(0 0 0 / 24%)'
+                                       }),
+                      dcc.Graph(id='conf-matrix',
+                                style={'width': '32%',
+                                       'box-shadow': '0px 1px 3px rgb(0 0 0 / 12%),'
+                                                     '0px 1px 2px rgb(0 0 0 / 24%)'
+                                       })],
+                     style={'display': 'flex',
+                            'flex-direction': 'row',
+                            'flex-wrap': 'nowrap',
+                            'justify-content': 'space-evenly',
+                            'box-sizing': 'border-box',
+                            'margin': '0 5px 25px'
+                            }),
             dcc.Graph(id='roc'),
             dcc.Graph(id='fpr-tpr')
         ]),
