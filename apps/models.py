@@ -204,7 +204,8 @@ def update_model(model):
     return roc_figure, hist_figure, fig_thresh, confusion_matrix, fig_hist
 
 
-@app.callback(Output('model-output', 'children'),
+@app.callback(Output('model-output', 'figure'),
+              Output('predicted-label', 'children'),
               Input('submit-button', 'n_clicks'),
               Input('model', 'value'),
               State('location', 'value'),
@@ -237,7 +238,29 @@ def make_prediction(n_clicks, model, location, rainfall, sunshine, windGustSpeed
     prob = model.predict_proba(inputs)
     pred = model.predict(inputs)
 
-    return u"""{} {} {}""".format(prob[0][0], prob[0][1], pred)
+    if pred == 1:
+        label = f'Will it rain: Yes ({np.round(prob[0][1] * 100, 2)}%)'
+    elif pred == 0:
+        label = f'Will it rain: No ({np.round(prob[0][0] * 100, 2)}%)'
+    else:
+        label = 'Error'
+
+    model_output = go.Figure(go.Bar(
+        x=['NO', 'YES'],
+        y=[prob[0][0], prob[0][1]],
+        marker=dict(color=['#193441', '#56B9EA'])
+    ))
+
+    model_output.update_layout(title='Prediction probability of each label',
+                               height=600,
+                               plot_bgcolor='#fff',
+                               xaxis=dict(title='Labels',
+                                          gridcolor='#F5F5F5'),
+                               yaxis=dict(title='Probability',
+                                          gridcolor='#F5F5F5')
+                               )
+
+    return model_output, label
 
 
 layout = html.Div([
@@ -445,7 +468,11 @@ layout = html.Div([
                    'width': '50%'}
         ),
         html.Div([
-            html.Div(id='model-output')
+            html.Div(children=[dcc.Graph(id='model-output')]),
+            html.Div(id='predicted-label',
+                     style={'font-size': '32px',
+                            'font-weight': 'bolder',
+                            'letter-spacing': '1px'})
         ],
             style={'box-sizing': 'border-box',
                    'padding': '35px',
