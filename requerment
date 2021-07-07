@@ -1,0 +1,7 @@
+numpy
+pandas
+sklearn
+feature_engine
+dash
+plotly
+gunicorn
