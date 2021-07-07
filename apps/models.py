@@ -129,7 +129,7 @@ def update_model(model):
                                               xanchor='center',
                                               yanchor='top',
                                               x=0.5,
-                                              y=0.95,
+                                              y=0.93,
                                               font=dict(size=18)
                                               ))
 
@@ -149,7 +149,7 @@ def update_model(model):
                                          xanchor='center',
                                          yanchor='top',
                                          x=0.5,
-                                         y=0.95,
+                                         y=0.93,
                                          font=dict(size=18)
                                          ),
                               xaxis=dict(title='Class',
@@ -175,7 +175,7 @@ def update_model(model):
                                       xanchor='center',
                                       yanchor='top',
                                       x=0.5,
-                                      y=0.95,
+                                      y=0.93,
                                       font=dict(size=18)
                                       ),
                            plot_bgcolor='#fff',
@@ -322,7 +322,8 @@ layout = html.Div([
     ]),
     html.Section([
         html.Div([
-            html.Div([html.Label(children='Location'),
+            html.Div([html.Label(children='Location',
+                                 style={'margin-bottom': '12px'}),
                       dcc.Dropdown(id='location',
                                    options=[
                                        {'label': 'Albury', 'value': 0},
@@ -375,44 +376,87 @@ layout = html.Div([
                                        {'label': 'Katherine', 'value': 47},
                                        {'label': 'Uluru', 'value': 48}
                                    ],
-                                   value=20)]),
-            html.Div([html.Label(children='Rainfall'),
-                      dcc.Input(id='rainfall', type='number', step=0.001, value=6.2)]),
-            html.Div([html.Label(children='Sunshine'),
-                      dcc.Input(id='sunshine', type='number', step=0.001, value=10.5)]),
-            html.Div([html.Label(children='Wind gust speed'),
-                      dcc.Input(id='windGustSpeed', type='number', step=0.001, value=98.0)]),
-            html.Div([html.Div([html.Label('Humidity 9am'),
-                                dcc.Input(id='humidity9am', type='number', step=0.001, value=48.0)]),
-                      html.Div([html.Label('Humidity 3pm'),
-                                dcc.Input(id='humidity3pm', type='number', step=0.001, value=32.0)])]),
-            html.Div([html.Div([html.Label('Pressure 9am'),
-                                dcc.Input(id='pressure9am', type='number', step=0.001, value=1002.900)]),
-                      html.Div([html.Label('Pressure 3pm'),
-                                dcc.Input(id='pressure3pm', type='number', step=0.001, value=999.300)])]),
-            html.Div([html.Div([html.Label('Cloud 9am'),
-                                dcc.Input(id='cloud9am', type='number', step=0.001, value=2.0)]),
-                      html.Div([html.Label('Cloud 3pm'),
-                                dcc.Input(id='cloud3pm', type='number', step=0.001, value=3.0)])]),
-            html.Div([html.Label('Rain today'),
+                                   value=20)],
+                     style={'width': '20%'}),
+            html.Div([html.Div([html.Label(children='Rainfall',
+                                           style={'margin-bottom': '12px'}),
+                                dcc.Input(id='rainfall', type='number', step=0.001, value=6.2)],
+                               style={'margin': '0 35px 0 0'}),
+                      html.Div([html.Label(children='Sunshine',
+                                           style={'margin-bottom': '12px'}),
+                                dcc.Input(id='sunshine', type='number', step=0.001, value=10.5)],
+                               style={'margin': '0 35px 0 0'}),
+                      html.Div([html.Label(children='Wind gust speed',
+                                           style={'margin-bottom': '12px'}),
+                                dcc.Input(id='windGustSpeed', type='number', step=0.001, value=98.0)],
+                               style={'margin': '0 35px 0 0'})],
+                     style={'display': 'flex',
+                            'margin': '20px 0'}),
+            html.Div([html.Div([html.Label('Humidity at 9am',
+                                           style={'margin-bottom': '12px'}),
+                                dcc.Input(id='humidity9am', type='number', step=0.001, value=48.0)],
+                               style={'margin': '0 35px 0 0'}),
+                      html.Div([html.Label('Humidity at 3pm',
+                                           style={'margin-bottom': '12px'}),
+                                dcc.Input(id='humidity3pm', type='number', step=0.001, value=32.0)],
+                               style={'margin': '0 35px 0 0'})],
+                     style={'display': 'flex',
+                            'margin': '20px 0'}
+                     ),
+            html.Div([html.Div([html.Label('Pressure at 9am',
+                                           style={'margin-bottom': '12px'}),
+                                dcc.Input(id='pressure9am', type='number', step=0.001, value=1002.900)],
+                               style={'margin': '0 35px 0 0'}),
+                      html.Div([html.Label('Pressure at 3pm',
+                                           style={'margin-bottom': '12px'}),
+                                dcc.Input(id='pressure3pm', type='number', step=0.001, value=999.300)],
+                               style={'margin': '0 35px 0 0'})],
+                     style={'display': 'flex',
+                            'margin': '20px 0'}
+                     ),
+            html.Div([html.Div([html.Label('Cloud density at 9am (1-10)',
+                                           style={'margin-bottom': '12px'}),
+                                dcc.Input(id='cloud9am', type='number', step=0.001, value=2.0)],
+                               style={'margin': '0 35px 0 0'}),
+                      html.Div([html.Label('Cloud density at 3pm (1-10)',
+                                           style={'margin-bottom': '12px'}),
+                                dcc.Input(id='cloud3pm', type='number', step=0.001, value=3.0)],
+                               style={'margin': '0 35px 0 0'})],
+                     style={'display': 'flex',
+                            'margin': '20px 0'}
+                     ),
+            html.Div([html.Label('Rain today',
+                                 style={'margin-bottom': '12px'}),
                       dcc.RadioItems(id='rain-today',
                                      options=[
                                          {'label': 'Yes', 'value': 1},
                                          {'label': 'No', 'value': 0}
                                      ],
-                                     value=1)]),
+                                     value=1)],
+                     style={'margin-bottom': '20px'}),
             html.Button(id='submit-button',
                         n_clicks=0,
-                        children='Get prediction'),
-            html.Div([
-                html.Div(id='model-output')
-            ])
+                        children='Get prediction',
+                        style={'margin': '20px 0px'}),
+
         ],
-            style={'margin': '25px',
-                   'background-color': '#fff',
-                   'box-shadow': '0px 1px 3px rgb(0 0 0 / 12%),'
-                                 '0px 1px 2px rgb(0 0 0 / 24%)'
-                   }
+            style={'box-sizing': 'border-box',
+                   'padding': '35px',
+                   'width': '50%'}
+        ),
+        html.Div([
+            html.Div(id='model-output')
+        ],
+            style={'box-sizing': 'border-box',
+                   'padding': '35px',
+                   'width': '50%'}
         )
-    ])
+    ],
+        style={'display': 'flex',
+               'margin': '25px',
+               'background-color': '#fff',
+               'box-shadow': '0px 1px 3px rgb(0 0 0 / 12%),'
+                             '0px 1px 2px rgb(0 0 0 / 24%)'
+               }
+    )
 ])
