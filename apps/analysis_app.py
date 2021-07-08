@@ -195,6 +195,7 @@ def update_pressure3pm(location, year):
               Input('year', 'value'))
 def update_windGraph(location, year):
     temp = data[(data['Location'] == location) & (data['Year'] == year)]
+    temp = temp.sort_values(by='sort_dir')
 
     wind_rose = px.bar_polar(temp,
                              theta='WindGustDir',
